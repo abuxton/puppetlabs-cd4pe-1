@@ -257,6 +257,45 @@ module PuppetX::Puppetlabs
       make_request(:post, SIGNUP_ENDPOINT, payload.to_json)
     end
 
+    # check for agent installation
+    # list agent credentials, if some exist use the first ones
+    # if not, create some
+    # get them
+    # install the agent
+    # list servers
+    # add 'build' capability
+
+    def create_agent_credentials()
+      endpoint = "#{ROOT_AJAX_ENDPOINT}?op=CreateAgentCredentials"
+      make_request(:get, endpoint)
+    end
+
+    def list_agent_credentials()
+      endpoint = "#{ROOT_AJAX_ENDPOINT}?op=ListAgentCredentials"
+      make_request(:get, endpoint)
+    end
+
+    def list_servers()
+      endpoint = "#{ROOT_AJAX_ENDPOINT}?op=ListServers"
+      make_request(:get, endpoint)
+    end
+
+    #
+    # curl -H "Cookie:com.puppet.pipelines.pfi.sid=$COOKIE" -H 'Content-Type: application/json' -v "${ENDPOINT}/${OWNER}/ajax?serverId=e8a31d17-fc1c-dd41-b30e-26307bd0dd7e" -d '{"op":"AddServerCapabilities", "content": {
+    #   "capabilities": ["build"]
+    #   }}}' | jq
+    def add_server_capabilities(serverId, capabilities)
+      payload = {
+          op: 'AddServerCapabilities',
+          content: {
+              capabilities: capabilities,
+          },
+      }
+
+      endpoint = "#{ROOT_AJAX_ENDPOINT}?serverId=#{serverId}"
+      make_request(:post, endpoint, payload.to_json)
+    end
+
     private
 
     def make_request(type, api_url, payload = '')
