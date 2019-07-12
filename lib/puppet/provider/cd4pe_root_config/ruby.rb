@@ -81,7 +81,8 @@ Puppet::Type.type(:cd4pe_root_config).provide(:ruby) do
     ssl_success = resp.code == '200'
     install_shared_job_hardware = @resource[:install_shared_job_hardware]
     if(install_shared_job_hardware)
-      install_shared_job_hardware()
+      response = install_shared_job_hardware()
+      puts "\n\n\n#{response}\n\n"
     end
 
     if endpoint_success && storage_success && ssl_success

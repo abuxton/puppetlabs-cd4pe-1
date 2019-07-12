@@ -39,16 +39,21 @@ module PuppetX::Puppetlabs
         },
       }
 
+      puts "making login request"
       response = make_request(:post, LOGIN_ENDPOINT, content.to_json)
+      puts "login request made"
       if response.code == '200'
+        puts "login request success"
         @cookie = response.response['set-cookie'].split(';')[0]
         content = JSON.parse(response.body, symbolize_names: true)
         @owner_ajax_endpoint = "/#{content[:username]}/ajax"
       elsif response.code == '401'
+        puts "login request unsuccess"
         begin
           resp = JSON.parse(response.body, symbolize_names: true)
           if resp[:error][:code] == 'LoginFailed'
             # Root account may not exist, try creating it
+            puts "try to create root login"
             response = create_root_account
             if response.code == '200'
               @cookie = response.response['set-cookie'].split(';')[0]
@@ -299,6 +304,7 @@ module PuppetX::Puppetlabs
     private
 
     def make_request(type, api_url, payload = '')
+      puts "making #{type} request to #{api_url} with #{payload}"
       connection = Net::HTTP.new(@config[:server], @config[:port])
       headers = {
         'Content-Type' => 'application/json',
@@ -312,6 +318,7 @@ module PuppetX::Puppetlabs
         attempts += 1
         begin
           Puppet.debug("cd4pe_client: requesting #{type} #{api_url}")
+          puts "headers: #{headers}"
           case type
           when :delete
             response = connection.delete(api_url, headers)
